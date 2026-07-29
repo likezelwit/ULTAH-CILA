@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Happy Birthday Cila!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#0d0608;--fg:#fff5ee;--muted:#8a7570;
+            --accent:#e8735a;--gold:#d4a06a;
+            --card:#1e0e0e;--border:#3a2020;--pink:#e8a0a0;
+        }
+        body{
+            font-family:'Poppins',sans-serif;background:var(--bg);
+            color:var(--fg);min-height:100vh;overflow:hidden;position:relative;
+        }
+        /* === Background Canvas === */
+        #bg-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+        /* === Vignette === */
+        body::after{
+            content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+            background:radial-gradient(ellipse at center,transparent 40%,rgba(13,6,8,0.7) 100%);
+            z-index:1;pointer-events:none;
+        }
+        /* === Scene Base === */
+        .scene{
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            z-index:10;opacity:0;pointer-events:none;transition:opacity 0.8s ease;
+        }
+        .scene.active{opacity:1;pointer-events:auto}
+
+        /* === SCENE 1: Welcome === */
+        #scene-welcome::before{
+            content:'';position:absolute;width:350px;height:350px;
+            background:radial-gradient(circle,rgba(232,115,90,0.12),transparent 70%);
+            border-radius:50%;animation:floatBlob 8s ease-in-out infinite;z-index:0;
+        }
+        #scene-welcome::after{
+            content:'';position:absolute;width:250px;height:250px;
+            background:radial-gradient(circle,rgba(212,160,106,0.1),transparent 70%);
+            border-radius:50%;animation:floatBlob 10s ease-in-out 2s infinite reverse;z-index:0;
+        }
+        @keyframes floatBlob{
+            0%,100%{transform:translate(0,0) scale(1)}
+            33%{transform:translate(30px,-20px) scale(1.1)}
+            66%{transform:translate(-20px,15px) scale(0.95)}
+        }
+        #scene-welcome .title{
+            font-family:'Dancing Script',cursive;font-size:clamp(2rem,8vw,4.5rem);
+            color:var(--gold);margin-bottom:0.5rem;text-align:center;z-index:2;
+            opacity:0;animation:fadeInUp 1s ease 0.3s forwards;
+        }
+        #scene-welcome .subtitle{
+            font-size:clamp(0.85rem,3vw,1.1rem);color:var(--muted);
+            margin-bottom:2.5rem;text-align:center;z-index:2;
+            opacity:0;animation:fadeInUp 1s ease 0.6s forwards;
+        }
+        .btn-main{
+            padding:18px 48px;font-size:1.15rem;font-weight:700;
+            font-family:'Poppins',sans-serif;color:var(--bg);
+            background:linear-gradient(135deg,var(--accent),var(--gold));
+            border:none;border-radius:60px;cursor:pointer;position:relative;z-index:2;
+            opacity:0;animation:fadeInUp 1s ease 0.9s forwards;
+            transition:transform 0.3s ease,box-shadow 0.3s ease;
+        }
+        .btn-main:hover{transform:scale(1.06);box-shadow:0 0 40px rgba(232,115,90,0.45)}
+        .btn-main:active{transform:scale(0.96)}
+        .btn-main.glow{animation:fadeInUp 1s ease 0.9s forwards,pulseGlow 2s ease-in-out 2s infinite}
+        @keyframes pulseGlow{
+            0%,100%{box-shadow:0 0 20px rgba(232,115,90,0.3)}
+            50%{box-shadow:0 0 45px rgba(232,115,90,0.6),0 0 70px rgba(212,160,106,0.25)}
+        }
+        @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+        /* === SCENE 2: Envelopes === */
+        #scene-envelopes{padding:2rem}
+        .envelope-hint{
+            position:absolute;top:1.5rem;font-size:0.95rem;color:var(--muted);
+            animation:fadeIn 0.6s ease forwards;z-index:5;
+        }
+        .envelope-counter{
+            position:absolute;bottom:1.5rem;font-size:0.85rem;color:var(--gold);z-index:5;
+        }
+        .envelope-wrapper{
+            position:absolute;cursor:pointer;perspective:900px;
+            width:180px;height:240px;z-index:5;
+            filter:drop-shadow(0 0 18px rgba(212,160,106,0.3));
+            animation:envelopeGlow 2s ease-in-out infinite;
+        }
+        @keyframes envelopeGlow{
+            0%,100%{filter:drop-shadow(0 0 15px rgba(212,160,106,0.25))}
+            50%{filter:drop-shadow(0 0 35px rgba(212,160,106,0.55))}
+        }
+        .envelope-card{
+            width:100%;height:100%;position:relative;
+            transform-style:preserve-3d;transition:transform 0.9s cubic-bezier(0.4,0,0.2,1);
+        }
+        .envelope-wrapper.opened .envelope-card{transform:rotateY(180deg)}
+        .envelope-wrapper.opened{animation:none;filter:drop-shadow(0 0 10px rgba(212,160,106,0.15))}
+        .envelope-front,.envelope-back{
+            position:absolute;width:100%;height:100%;
+            backface-visibility:hidden;border-radius:12px;overflow:hidden;
+        }
+        .envelope-front{
+            background:linear-gradient(160deg,#d4a574,#b8895a);
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            box-shadow:0 8px 25px rgba(0,0,0,0.5);
+        }
+        .envelope-front::before{
+            content:'';position:absolute;top:0;left:0;right:0;height:42%;
+            background:linear-gradient(160deg,#e0b88a,#d4a574);
+            clip-path:polygon(0 0,50% 100%,100% 0);z-index:2;
+        }
+        .envelope-front::after{
+            content:'';position:absolute;bottom:0;left:0;right:0;height:55%;
+            background:linear-gradient(160deg,#c4956a,#a8774a);
+            clip-path:polygon(0 0,50% 35%,100% 0,100% 100%,0 100%);z-index:1;
+        }
+        .envelope-icon{
+            font-size:2.6rem;color:#fff;z-index:3;
+            text-shadow:0 2px 12px rgba(0,0,0,0.25);
+            animation:envBounce 2s ease-in-out infinite;
+        }
+        .envelope-label{
+            font-size:0.72rem;color:rgba(255,255,255,0.85);z-index:3;
+            margin-top:0.8rem;font-weight:600;letter-spacing:0.5px;
+        }
+        @keyframes envBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+        .envelope-back{
+            transform:rotateY(180deg);background:var(--card);
+            border:2px solid var(--border);display:flex;flex-direction:column;
+            align-items:center;padding:8px;
+        }
+        .envelope-back img{width:100%;height:165px;object-fit:cover;border-radius:8px}
+        .envelope-back .photo-desc{
+            font-size:0.7rem;color:var(--pink);text-align:center;
+            margin-top:6px;padding:0 2px;line-height:1.4;
+        }
+        /* Sparkle burst */
+        .sparkle{
+            position:absolute;width:6px;height:6px;border-radius:50%;
+            pointer-events:none;z-index:100;
+        }
+
+        /* === SCENE 3: Collected === */
+        #scene-collected{padding:2rem;gap:0}
+        .collected-cards{
+            display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:1.5rem;
+        }
+        .collected-card{
+            width:130px;border-radius:12px;overflow:hidden;
+            border:2px solid var(--border);background:var(--card);
+            opacity:0;transform:scale(0.4) translateY(50px);
+        }
+        .collected-card.pop{animation:cardPop 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards}
+        @keyframes cardPop{to{opacity:1;transform:scale(1) translateY(0)}}
+        .collected-card img{width:100%;height:155px;object-fit:cover}
+        .collected-compliment{
+            font-family:'Dancing Script',cursive;font-size:clamp(1.4rem,5vw,2.4rem);
+            color:var(--gold);opacity:0;text-align:center;
+        }
+        .collected-compliment.show{animation:fadeInUp 0.8s ease forwards}
+
+        /* === SCENE 4: Messages === */
+        #scene-messages{padding:2rem;cursor:pointer}
+        .message-box{
+            max-width:380px;text-align:center;padding:2rem;
+            background:rgba(30,14,14,0.6);border-radius:20px;
+            border:1px solid var(--border);backdrop-filter:blur(10px);
+        }
+        .msg-from{
+            font-size:0.9rem;color:var(--gold);font-weight:600;margin-bottom:1rem;
+        }
+        .msg-text{font-size:1.05rem;color:var(--fg);line-height:1.9}
+        .msg-hint{
+            position:absolute;bottom:2.5rem;font-size:0.78rem;color:var(--muted);
+            animation:fadeIn 0.5s ease forwards;
+        }
+        .msg-cooldown{
+            position:absolute;bottom:2.5rem;font-size:0.8rem;color:var(--accent);display:none;
+        }
+
+        /* === SCENE 5: Cake === */
+        #scene-cake{padding:2rem;overflow:hidden}
+        .cake-area{position:relative;display:flex;flex-direction:column;align-items:center}
+        /* Fire glow behind cake */
+        .fire-glow{
+            position:absolute;border-radius:50%;filter:blur(55px);z-index:0;
+            transition:opacity 1.2s ease;
+        }
+        .fire-glow.g1{width:280px;height:280px;background:radial-gradient(circle,#ff6b35,transparent);animation:ff1 0.3s ease-in-out infinite alternate}
+        .fire-glow.g2{width:220px;height:220px;background:radial-gradient(circle,#ffa500,transparent);animation:ff2 0.4s ease-in-out infinite alternate}
+        .fire-glow.g3{width:180px;height:180px;background:radial-gradient(circle,#ff4500,transparent);animation:ff1 0.25s ease-in-out infinite alternate-reverse}
+        @keyframes ff1{from{transform:scale(1) translate(0,0);opacity:.7}to{transform:scale(1.12) translate(4px,-4px);opacity:1}}
+        @keyframes ff2{from{transform:scale(1) translate(0,0);opacity:.6}to{transform:scale(1.18) translate(-4px,4px);opacity:.9}}
+        /* Cake */
+        .cake{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+        .candles{display:flex;gap:14px;position:relative;z-index:2;margin-bottom:-6px}
+        .candle{
+            width:7px;height:28px;
+            background:linear-gradient(180deg,#fff5ee,#e8a0a0);
+            border-radius:3px 3px 0 0;position:relative;
+        }
+        .flame{
+            position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+            width:11px;height:16px;
+            background:radial-gradient(ellipse at bottom,#fff 0%,#ffdd57 30%,#ff9500 60%,transparent 100%);
+            border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+            animation:flameDance 0.3s ease-in-out infinite alternate;
+            transition:opacity 0.6s ease;
+        }
+        .flame::after{
+            content:'';position:absolute;top:-3px;left:50%;transform:translateX(-50%);
+            width:5px;height:7px;
+            background:radial-gradient(ellipse at bottom,#fff,#ffdd57,transparent);
+            border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+            animation:flameDance2 0.2s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes flameDance{from{transform:translateX(-50%) scaleX(1) scaleY(1) rotate(-3deg)}to{transform:translateX(-50%) scaleX(.82) scaleY(1.12) rotate(3deg)}}
+        @keyframes flameDance2{from{transform:translateX(-50%) scaleY(1)}to{transform:translateX(-50%) scaleY(.8)}}
+        .candle:nth-child(2) .flame{animation-delay:.1s}
+        .candle:nth-child(3) .flame{animation-delay:.15s}
+        .candle:nth-child(4) .flame{animation-delay:.05s}
+        .candle:nth-child(5) .flame{animation-delay:.2s}
+        .cake-layer{border-radius:14px;position:relative}
+        .cake-layer.top{width:110px;height:46px;background:linear-gradient(180deg,#e8a0a0,#d48080);border-radius:14px 14px 6px 6px}
+        .cake-layer.mid{width:140px;height:50px;background:linear-gradient(180deg,#f0c0c0,#e0a0a0);margin-top:-3px}
+        .cake-layer.bot{width:170px;height:56px;background:linear-gradient(180deg,#e8735a,#c45a45);border-radius:6px 6px 18px 18px;margin-top:-3px}
+        .cake-plate{
+            width:210px;height:14px;
+            background:linear-gradient(180deg,#d4a06a,#b8895a);
+            border-radius:0 0 50% 50%/0 0 100% 100%;margin-top:-2px;
+        }
+        .sprinkle{position:absolute;width:4px;height:4px;border-radius:50%}
+        .blow-text{
+            font-family:'Dancing Script',cursive;font-size:clamp(1.6rem,6vw,2.8rem);
+            color:var(--gold);margin-top:2rem;z-index:3;
+            opacity:0;transition:opacity 0.5s ease;text-align:center;
+        }
+        .countdown-num{
+            font-size:clamp(4rem,16vw,9rem);font-weight:900;color:var(--accent);
+            z-index:3;opacity:0;transition:opacity 0.25s ease;
+            text-shadow:0 0 40px rgba(232,115,90,0.4);
+        }
+        .cake-enter{animation:cakeEnter 0.8s cubic-bezier(0.34,1.56,0.64,1) forwards}
+        @keyframes cakeEnter{from{transform:translateY(60px) scale(0.8);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+
+        /* === Confetti Canvas === */
+        #confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:50;pointer-events:none}
+
+        /* === Final Wishes === */
+        .final-wishes{
+            position:fixed;top:0;left:0;width:100%;height:100%;
+            display:flex;flex-direction:column;align-items:center;justify-content:center;
+            z-index:60;opacity:0;pointer-events:none;transition:opacity 1s ease;
+            padding:2rem;text-align:center;
+            background:radial-gradient(ellipse at center,rgba(30,14,14,0.85),rgba(13,6,8,0.95));
+        }
+        .final-wishes.active{opacity:1;pointer-events:auto}
+        .final-wishes h2{
+            font-family:'Dancing Script',cursive;font-size:clamp(2rem,7vw,3.5rem);
+            color:var(--gold);margin-bottom:2rem;
+        }
+        .wish-item{
+            font-size:clamp(0.88rem,2.8vw,1.08rem);color:var(--fg);
+            line-height:2.2;opacity:0;transform:translateY(18px);transition:all 0.6s ease;
+        }
+        .wish-item.show{opacity:1;transform:translateY(0)}
+        .wish-item .wish-star{color:var(--gold);margin-right:6px;font-size:0.7em}
+        .final-footer{
+            margin-top:2.5rem;font-family:'Dancing Script',cursive;
+            font-size:clamp(1rem,3.5vw,1.5rem);color:var(--pink);
+            opacity:0;transition:opacity 0.8s ease;
+        }
+        .final-footer.show{opacity:1}
+
+        /* === Responsive === */
+        @media(max-width:480px){
+            .collected-card{width:100px}
+            .collected-card img{height:115px}
+            .envelope-wrapper{width:150px;height:210px}
+            .envelope-back img{height:140px}
+            .cake-layer.top{width:90px;height:38px}
+            .cake-layer.mid{width:115px;height:42px}
+            .cake-layer.bot{width:140px;height:48px}
+            .cake-plate{width:175px;height:12px}
+            .candle{height:22px;width:6px}
+            .flame{width:9px;height:13px;top:-12px}
+        }
+        @media(prefers-reduced-motion:reduce){
+            *,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+    <!-- SCENE 1: Welcome -->
+    <section id="scene-welcome" class="scene active" role="main">
+        <div class="title">Selamat Ulang Tahun</div>
+        <div class="subtitle">Ada sesuatu spesial buat kamu...</div>
+        <button class="btn-main glow" id="btn-start" aria-label="Mulai pengalaman">Hi Cilaa! KLIK AKU!</button>
+    </section>
+
+    <!-- SCENE 2: Envelopes -->
+    <section id="scene-envelopes" class="scene" aria-label="Cari amplop">
+        <div class="envelope-hint"><i class="fas fa-search"></i> Temukan amplop-amplop ini!</div>
+        <div class="envelope-counter" id="env-counter">0 / 4 ditemukan</div>
+    </section>
+
+    <!-- SCENE 3: Collected Cards -->
+    <section id="scene-collected" class="scene" aria-label="Foto-foto Cila">
+        <div class="collected-cards" id="collected-cards"></div>
+        <div class="collected-compliment" id="collected-compliment">Cantik cantik banget yah!</div>
+    </section>
+
+    <!-- SCENE 4: Messages -->
+    <section id="scene-messages" class="scene" aria-label="Pesan-pesan">
+        <div class="message-box" id="message-box"></div>
+        <div class="msg-hint" id="msg-hint" style="opacity:0">Ketuk layar untuk pesan berikutnya</div>
+        <div class="msg-cooldown" id="msg-cooldown"></div>
+    </section>
+
+    <!-- SCENE 5: Cake -->
+    <section id="scene-cake" class="scene" aria-label="Kue ulang tahun">
+        <div class="cake-area" id="cake-area">
+            <div class="fire-glow g1"></div>
+            <div class="fire-glow g2"></div>
+            <div class="fire-glow g3"></div>
+            <div class="cake" id="cake">
+                <div class="candles">
+                    <div class="candle"><div class="flame"></div></div>
+                    <div class="candle"><div class="flame"></div></div>
+                    <div class="candle"><div class="flame"></div></div>
+                    <div class="candle"><div class="flame"></div></div>
+                    <div class="candle"><div class="flame"></div></div>
+                </div>
+                <div class="cake-layer top">
+                    <span class="sprinkle" style="left:18%;top:28%;background:#fff"></span>
+                    <span class="sprinkle" style="left:52%;top:55%;background:#ffdd57"></span>
+                    <span class="sprinkle" style="left:78%;top:22%;background:#e8735a"></span>
+                    <span class="sprinkle" style="left:38%;top:72%;background:#fff"></span>
+                    <span class="sprinkle" style="left:65%;top:40%;background:#d4a06a"></span>
+                </div>
+                <div class="cake-layer mid"></div>
+                <div class="cake-layer bot"></div>
+                <div class="cake-plate"></div>
+            </div>
+            <div class="blow-text" id="blow-text"></div>
+            <div class="countdown-num" id="countdown-num"></div>
+        </div>
+    </section>
+
+    <!-- Confetti -->
+    <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+    <!-- Final Wishes -->
+    <div class="final-wishes" id="final-wishes" role="region" aria-label="Doa dan harapan">
+        <h2>Doa & Harapan</h2>
+        <div id="wish-list"></div>
+        <div class="final-footer" id="final-footer">Happy Birthday, Cila! 🎂</div>
+    </div>
+
+    <script>
+    /* =========================================================
+       DATA
+       ========================================================= */
+    const photoData = [
+        { url: 'https://picsum.photos/seed/cila-bday1/300/400.jpg', desc: 'Senyum yang selalu bikin hari cerah' },
+        { url: 'https://picsum.photos/seed/cila-bday2/300/400.jpg', desc: 'Cantiknya tuh di luar nalar' },
+        { url: 'https://picsum.photos/seed/cila-bday3/300/400.jpg', desc: 'Vibes-nya selalu positif dan menyenangkan' },
+        { url: 'https://picsum.photos/seed/cila-bday4/300/400.jpg', desc: 'Sahabat sejati yang selalu ada' }
+    ];
+
+    const messages = [
+        { from: 'Dira 9F', text: 'CILA SELAMAT ULANG TAHUN YAH!, semoga kamu sehat selalu dan panjang umur!!!' },
+        { from: 'Nuara 7G', text: 'Selamat ulang tahun!' }
+    ];
+
+    const wishes = [
+        'Semoga di tahun ini semua cita-cita tercapai',
+        'Semoga selalu dikelilingi orang-orang yang sayang kamu',
+        'Semoga makin cantik, makin pintar, makin hebat',
+        'Semoga rezekinya lancar dan berlimpah',
+        'Semoga kesehatan selalu terjaga',
+        'Semoga bahagia selalu, tanpa batas!'
+    ];
+
+    /* =========================================================
+       BACKGROUND PARTICLES (Canvas)
+       ========================================================= */
+    const bgC = document.getElementById('bg-canvas');
+    const bgX = bgC.getContext('2d');
+    let dots = [];
+
+    function resizeBg() {
+        bgC.width = window.innerWidth;
+        bgC.height = window.innerHeight;
+    }
+
+    function initDots() {
+        dots = [];
+        const count = Math.min(70, Math.floor(bgC.width * bgC.height / 15000));
+        for (let i = 0; i < count; i++) {
+            dots.push({
+                x: Math.random() * bgC.width,
+                y: Math.random() * bgC.height,
+                r: Math.random() * 1.8 + 0.4,
+                dx: (Math.random() - 0.5) * 0.25,
+                dy: (Math.random() - 0.5) * 0.25,
+                o: Math.random() * 0.45 + 0.08
+            });
+        }
+    }
+
+    function drawDots() {
+        bgX.clearRect(0, 0, bgC.width, bgC.height);
+        dots.forEach(d => {
+            bgX.beginPath();
+            bgX.arc(d.x, d.y, Math.max(0.1, d.r), 0, Math.PI * 2);
+            bgX.fillStyle = `rgba(212,160,106,${d.o})`;
+            bgX.fill();
+            d.x += d.dx;
+            d.y += d.dy;
+            if (d.x < 0) d.x = bgC.width;
+            if (d.x > bgC.width) d.x = 0;
+            if (d.y < 0) d.y = bgC.height;
+            if (d.y > bgC.height) d.y = 0;
+        });
+        requestAnimationFrame(drawDots);
+    }
+
+    resizeBg();
+    initDots();
+    drawDots();
+    window.addEventListener('resize', () => { resizeBg(); initDots(); });
+
+    /* =========================================================
+       SCENE MANAGEMENT
+       ========================================================= */
+    function fadeOut(id) {
+        document.getElementById(id).classList.remove('active');
+    }
+    function fadeIn(id) {
+        document.getElementById(id).classList.add('active');
+    }
+    function switchScene(from, to, delay) {
+        delay = delay || 800;
+        fadeOut(from);
+        setTimeout(() => fadeIn(to), delay);
+    }
+
+    /* =========================================================
+       SPARKLE BURST (saat buka amplop)
+       ========================================================= */
+    function burstSparkles(x, y) {
+        const scene = document.getElementById('scene-envelopes');
+        const colors = ['#d4a06a','#e8735a','#e8a0a0','#fff5ee','#ffdd57'];
+        for (let i = 0; i < 10; i++) {
+            const s = document.createElement('div');
+            s.className = 'sparkle';
+            s.style.left = x + 'px';
+            s.style.top = y + 'px';
+            s.style.background = colors[i % colors.length];
+            scene.appendChild(s);
+            const angle = (i / 10) * Math.PI * 2;
+            const dist = 50 + Math.random() * 50;
+            const dx = Math.cos(angle) * dist;
+            const dy = Math.sin(angle) * dist;
+            s.animate([
+                { transform: 'translate(0,0) scale(1)', opacity: 1 },
+                { transform: `translate(${dx}px,${dy}px) scale(0)`, opacity: 0 }
+            ], { duration: 550, easing: 'ease-out' }).onfinish = () => s.remove();
+        }
+    }
+
+    /* =========================================================
+       SCENE 2: ENVELOPES
+       ========================================================= */
+    let envFound = 0;
+
+    document.getElementById('btn-start').addEventListener('click', startExperience);
+
+    function startExperience() {
+        switchScene('scene-welcome', 'scene-envelopes');
+        setTimeout(spawnEnvelope, 1300);
+    }
+
+    function randPos() {
+        const mx = 100, my = 80;
+        const ew = window.innerWidth < 500 ? 150 : 180;
+        const eh = window.innerWidth < 500 ? 210 : 240;
+        const maxX = window.innerWidth - mx - ew;
+        const maxY = window.innerHeight - my - eh;
+        return {
+            x: mx + Math.random() * Math.max(0, maxX),
+            y: my + Math.random() * Math.max(0, maxY)
+        };
+    }
+
+    function spawnEnvelope() {
+        if (envFound >= 4) return;
+        const pos = randPos();
+        const scene = document.getElementById('scene-envelopes');
+        const idx = envFound;
+        const data = photoData[idx];
+
+        const wrap = document.createElement('div');
+        wrap.className = 'envelope-wrapper';
+        wrap.style.left = pos.x + 'px';
+        wrap.style.top = pos.y + 'px';
+        wrap.style.opacity = '0';
+        wrap.style.transform = 'scale(0.4) rotate(' + (Math.random()*16-8) + 'deg)';
+        wrap.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+        wrap.setAttribute('role', 'button');
+        wrap.setAttribute('aria-label', 'Amplop ' + (idx + 1));
+        wrap.setAttribute('tabindex', '0');
+
+        wrap.innerHTML = `
+            <div class="envelope-card">
+                <div class="envelope-front">
+                    <div class="envelope-icon"><i class="fas fa-envelope-open-text"></i></div>
+                    <div class="envelope-label">Ketuk untuk buka!</div>
+                </div>
+                <div class="envelope-back">
+                    <img src="${data.url}" alt="Foto Cila ${idx+1}" loading="eager">
+                    <div class="photo-desc">${data.desc}</div>
+                </div>
+            </div>
+        `;
+
+        scene.appendChild(wrap);
+
+        // Animasi masuk
+        requestAnimationFrame(() => {
+            wrap.style.opacity = '1';
+            wrap.style.transform = 'scale(1) rotate(' + (Math.random()*6-3) + 'deg)';
+        });
+
+        function openEnv() {
+            if (wrap.classList.contains('opened')) return;
+            wrap.classList.add('opened');
+            envFound++;
+            document.getElementById('env-counter').textContent = envFound + ' / 4 ditemukan';
+
+            // Sparkle di posisi klik
+            const rect = wrap.getBoundingClientRect();
+            const sceneRect = scene.getBoundingClientRect();
+            burstSparkles(
+                rect.left + rect.width/2 - sceneRect.left,
+                rect.top + rect.height/2 - sceneRect.top
+            );
+
+            if (envFound < 4) {
+                setTimeout(spawnEnvelope, 1000);
+            } else {
+                // Semua ketemu → pindah ke collected
+                setTimeout(goToCollected, 1600);
+            }
+        }
+
+        wrap.addEventListener('click', openEnv);
+        wrap.addEventListener('keydown', e => { if(e.key==='Enter') openEnv(); });
+    }
+
+    /* =========================================================
+       SCENE 3: COLLECTED CARDS
+       ========================================================= */
+    function goToCollected() {
+        fadeOut('scene-envelopes');
+        setTimeout(() => {
+            fadeIn('scene-collected');
+            buildCollected();
+        }, 800);
+    }
+
+    function buildCollected() {
+        const box = document.getElementById('collected-cards');
+        box.innerHTML = '';
+        photoData.forEach((d, i) => {
+            const card = document.createElement('div');
+            card.className = 'collected-card';
+            card.innerHTML = `<img src="${d.url}" alt="Foto Cila ${i+1}">`;
+            box.appendChild(card);
+            // Animasi pop bertahap
+            setTimeout(() => card.classList.add('pop'), 200 + i * 250);
+        });
+
+        // Tampilkan pujian setelah semua kartu muncul
+        const compliment = document.getElementById('collected-compliment');
+        compliment.classList.remove('show');
+        setTimeout(() => compliment.classList.add('show'), 200 + 4 * 250 + 300);
+
+        // Pindah ke messages
+        setTimeout(() => {
+            switchScene('scene-collected', 'scene-messages');
+            setTimeout(() => showMessage(0), 900);
+        }, 200 + 4 * 250 + 300 + 2200);
+    }
+
+    /* =========================================================
+       SCENE 4: MESSAGES
+       ========================================================= */
+    let msgIdx = 0;
+    let canTap = true;
+
+    function showMessage(idx) {
+        if (idx >= messages.length) {
+            // Semua pesan ditampilkan → ke kue
+            switchScene('scene-messages', 'scene-cake');
+            setTimeout(startCakeScene, 1000);
+            return;
+        }
+        msgIdx = idx;
+        const m = messages[idx];
+        const box = document.getElementById('message-box');
+        const hint = document.getElementById('msg-hint');
+        const cd = document.getElementById('msg-cooldown');
+
+        box.innerHTML = `
+            <div class="msg-from">~ ${m.from} ~</div>
+            <div class="msg-text">"${m.text}"</div>
+        `;
+        box.style.opacity = '0';
+        box.style.transform = 'translateY(15px)';
+        box.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+
+        cd.style.display = 'none';
+        hint.style.display = 'block';
+        hint.style.opacity = '0';
+
+        // Animasi masuk
+        requestAnimationFrame(() => {
+            box.style.opacity = '1';
+            box.style.transform = 'translateY(0)';
+        });
+
+        // Tampilkan hint
+        setTimeout(() => {
+            hint.style.opacity = '1';
+            // Ubah teks hint di pesan terakhir
+            if (idx === messages.length - 1) {
+                hint.textContent = 'Ketuk untuk kejutan selanjutnya...';
+            } else {
+                hint.textContent = 'Ketuk layar untuk pesan berikutnya';
+            }
+            canTap = true;
+        }, 700);
+    }
+
+    document.getElementById('scene-messages').addEventListener('click', nextMessage);
+
+    function nextMessage() {
+        if (!canTap) return;
+        canTap = false;
+
+        const hint = document.getElementById('msg-hint');
+        const cd = document.getElementById('msg-cooldown');
+        hint.style.display = 'none';
+
+        // Jika ini pesan terakhir, langsung pindah tanpa cooldown
+        if (msgIdx === messages.length - 1) {
+            showMessage(msgIdx + 1);
+            return;
+        }
+
+        // Cooldown 5 detik
+        cd.style.display = 'block';
+        let rem = 5;
+        cd.textContent = `Tunggu ${rem} detik...`;
+        const iv = setInterval(() => {
+            rem--;
+            if (rem > 0) {
+                cd.textContent = `Tunggu ${rem} detik...`;
+            } else {
+                clearInterval(iv);
+                cd.style.display = 'none';
+                showMessage(msgIdx + 1);
+            }
+        }, 1000);
+    }
+
+    /* =========================================================
+       SCENE 5: CAKE
+       ========================================================= */
+    function startCakeScene() {
+        const cake = document.getElementById('cake-area');
+        cake.classList.add('cake-enter');
+
+        const blow = document.getElementById('blow-text');
+        const num = document.getElementById('countdown-num');
+
+        // Tampilkan teks "TIUP BARENG YUKK!"
+        setTimeout(() => {
+            blow.textContent = 'TIUP BARENG YUKK!';
+            blow.style.opacity = '1';
+        }, 600);
+
+        // Mulai countdown setelah teks hilang
+        setTimeout(() => {
+            blow.style.opacity = '0';
+            setTimeout(startCountdown, 400);
+        }, 2800);
+    }
+
+    function startCountdown() {
+        const num = document.getElementById('countdown-num');
+        let count = 3;
+
+        function tick() {
+            if (count > 0) {
+                num.textContent = count;
+                num.style.opacity = '1';
+                // Skala kecil lalu besar
+                num.style.transform = 'scale(0.6)';
+                num.style.transition = 'opacity 0.2s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1)';
+                requestAnimationFrame(() => {
+                    num.style.transform = 'scale(1)';
+                });
+
+                setTimeout(() => {
+                    num.style.opacity = '0';
+                    count--;
+                    setTimeout(tick, 250);
+                }, 750);
+            } else {
+                num.style.opacity = '0';
+                blowOut();
+            }
+        }
+        tick();
+    }
+
+    function blowOut() {
+        // Matikan api lilin
+        document.querySelectorAll('.flame').forEach(f => { f.style.opacity = '0'; });
+        // Matikan api belakang
+        document.querySelectorAll('.fire-glow').forEach(f => { f.style.opacity = '0'; });
+
+        // Confetti!
+        setTimeout(launchConfetti, 500);
+        // Doa & harapan
+        setTimeout(showFinalWishes, 3200);
+    }
+
+    /* =========================================================
+       CONFETTI (Canvas)
+       ========================================================= */
+    function launchConfetti() {
+        const cv = document.getElementById('confetti-canvas');
+        const cx = cv.getContext('2d');
+        cv.width = window.innerWidth;
+        cv.height = window.innerHeight;
+
+        const colors = ['#e8735a','#d4a06a','#e8a0a0','#fff5ee','#ff6b35','#ffa500','#ffdd57','#ff9500'];
+        const pieces = [];
+
+        for (let i = 0; i < 220; i++) {
+            pieces.push({
+                x: cv.width / 2 + (Math.random() - 0.5) * cv.width * 0.6,
+                y: -Math.random() * cv.height * 0.6 - 20,
+                w: Math.random() * 10 + 4,
+                h: Math.random() * 6 + 2,
+                c: colors[Math.floor(Math.random() * colors.length)],
+                vy: Math.random() * 3.5 + 1.5,
+                vx: (Math.random() - 0.5) * 5,
+                rot: Math.random() * 360,
+                rs: (Math.random() - 0.5) * 12,
+                o: 1
+            });
+        }
+
+        let frame = 0;
+        const maxF = 340;
+
+        function draw() {
+            if (frame >= maxF) { cx.clearRect(0, 0, cv.width, cv.height); return; }
+            cx.clearRect(0, 0, cv.width, cv.height);
+
+            pieces.forEach(p => {
+                p.y += p.vy;
+                p.x += p.vx;
+                p.rot += p.rs;
+                p.vx *= 0.995;
+                if (frame > maxF * 0.65) p.o = Math.max(0, p.o - 0.018);
+
+                cx.save();
+                cx.translate(p.x, p.y);
+                cx.rotate(p.rot * Math.PI / 180);
+                cx.globalAlpha = p.o;
+                cx.fillStyle = p.c;
+                cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                cx.restore();
+            });
+
+            frame++;
+            requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    /* =========================================================
+       FINAL WISHES
+       ========================================================= */
+    function showFinalWishes() {
+        const list = document.getElementById('wish-list');
+        list.innerHTML = '';
+
+        wishes.forEach(w => {
+            const div = document.createElement('div');
+            div.className = 'wish-item';
+            div.innerHTML = `<span class="wish-star"><i class="fas fa-star"></i></span>${w}`;
+            list.appendChild(div);
+        });
+
+        document.getElementById('final-wishes').classList.add('active');
+
+        // Animasi satu per satu
+        const items = document.querySelectorAll('.wish-item');
+        items.forEach((it, i) => {
+            setTimeout(() => it.classList.add('show'), 400 + i * 550);
+        });
+
+        // Footer
+        setTimeout(() => {
+            document.getElementById('final-footer').classList.add('show');
+        }, 400 + wishes.length * 550 + 400);
+    }
+    </script>
+</body>
+</html>
